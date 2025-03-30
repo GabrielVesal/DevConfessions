@@ -1,31 +1,37 @@
 using DevConfessions.Services;
-using System.IO;
+using Firebase.Database;
+using Firebase.Database.Query;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Configuração essencial de serviços
-builder.Services.AddControllersWithViews(); // Adiciona suporte a controllers e views
+builder.Services.AddControllersWithViews();
 
-// 2. Configuração de persistência (Render Free Tier)
-var dataDir = Environment.GetEnvironmentVariable("JSON_STORAGE_PATH") 
-    ?? Path.Combine(Directory.GetCurrentDirectory(), "data");
+// 2. Configuração do Firebase
+var firebaseUrl = Environment.GetEnvironmentVariable("FIREBASE_DATABASE_URL")
+    ?? throw new InvalidOperationException("Firebase DatabaseUrl not configured");
+var firebaseSecret = Environment.GetEnvironmentVariable("FIREBASE_SECRET")
+    ?? throw new InvalidOperationException("Firebase Secret not configured");
 
-if (!Directory.Exists(dataDir)) 
-    Directory.CreateDirectory(dataDir);
 
-var jsonPath = Path.Combine(dataDir, "confessions.json");
+// Configura o cliente Firebase
+builder.Services.AddSingleton<FirebaseClient>(_ =>
+    new FirebaseClient(
+        firebaseUrl,
+        new FirebaseOptions
+        {
+            AuthTokenAsyncFactory = () => Task.FromResult(firebaseSecret)
+        }));
 
-// 3. Registro do serviço com caminho absoluto
-builder.Services.AddSingleton<JsonConfessionService>(_ => 
-    new JsonConfessionService(jsonPath));
+// 3. Registro do serviço (mantemos o mesmo nome, mas agora usando Firebase)
+builder.Services.AddSingleton<JsonConfessionService>();
 
 var app = builder.Build();
 
-// 4. Pipeline de middlewares (ORDEM IMPORTANTE!)
+// Restante da configuração permanece igual
 app.UseStaticFiles();
-app.UseRouting(); // Necessário antes do mappeing de rotas
+app.UseRouting();
 
-// 5. Configuração de rotas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Confessions}/{action=Index}/{id?}");
