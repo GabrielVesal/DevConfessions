@@ -1,4 +1,4 @@
-﻿using DevConfessions.Models;
+using DevConfessions.Models;
 using DevConfessions.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +7,14 @@ namespace DevConfessions.Controllers
     public class ConfessionsController : Controller
     {
         private readonly JsonConfessionService _service;
-        //private const string UserTokenCookie = "DevConfessionToken";
         private const int TopConfessionsCount = 5;
 
         public ConfessionsController(JsonConfessionService service) => _service = service;
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var topConfessions = _service.GetAllConfessions()
+            var allConfessions = await _service.GetAllConfessions();
+            var topConfessions = allConfessions
                 .OrderByDescending(c => c.Votes)
                 .Take(TopConfessionsCount)
                 .ToList();
@@ -23,126 +23,49 @@ namespace DevConfessions.Controllers
             return View(topConfessions);
         }
 
-        public IActionResult All()
+        public async Task<IActionResult> All()
         {
-            var allConfessions = _service.GetAllConfessions()
+            var allConfessions = await _service.GetAllConfessions();
+            var orderedConfessions = allConfessions
                 .OrderByDescending(c => c.Votes)
                 .ToList();
 
             ViewBag.ShowAll = true;
-            return View("Index", allConfessions);
+            return View("Index", orderedConfessions);
         }
 
         [HttpPost]
-        public IActionResult Vote(string id)
+        public async Task<IActionResult> Vote(string id)
         {
-            var confessions = _service.GetAllConfessions();
-            var confession = confessions.FirstOrDefault(c => c.Id == id);
-
-            if (confession != null)
-            {
-                confession.Votes++;
-                _service.SaveConfessions(confessions);
-            }
-
+            await _service.IncrementVote(id);
             return RedirectToAction("Index");
         }
 
         public IActionResult Create() => View();
 
         [HttpPost]
-        public IActionResult Create(Confession confession)
+        public async Task<IActionResult> Create(Confession confession)
         {
-
+            if (ModelState.IsValid)
+            {
                 if (string.IsNullOrWhiteSpace(confession.AuthorName))
                 {
                     confession.AuthorName = "Anônimo";
                 }
 
-                confession.Id = Guid.NewGuid().ToString();
+                confession.Id = null;
                 confession.Votes = 0;
                 confession.DateCreated = DateTime.Now;
-                //confession.AuthorToken = Guid.NewGuid().ToString();
 
-                _service.AddConfession(confession);
-
-                // Armazena o token em cookie
-                //Response.Cookies.Append("DevConfessionToken", confession.AuthorToken, new CookieOptions
-                //{
-                //    Expires = DateTime.Now.AddYears(1),
-                //    HttpOnly = true,
-                //    Secure = true
-                //});
-
+                await _service.AddConfession(confession);
                 return RedirectToAction(nameof(Index));
+            }
             return View(confession);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(string id, Confession updatedConfession)
-        //{
-        //    var userToken = Request.Cookies["DevConfessionToken"];
-        //    if (!_service.IsAuthor(id, userToken))
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        var existingConfession = _service.GetConfessionById(id);
-        //        if (existingConfession == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        // Mantém os valores originais que não devem ser alterados
-        //        updatedConfession.Id = existingConfession.Id;
-        //        updatedConfession.Votes = existingConfession.Votes;
-        //        updatedConfession.DateCreated = existingConfession.DateCreated;
-        //        updatedConfession.AuthorToken = existingConfession.AuthorToken;
-
-        //        // Atualiza hashtags
-        //        updatedConfession.Hashtags = _service.ExtractHashtags(updatedConfession.Content);
-
-        //        var confessions = _service.GetAllConfessions();
-        //        var index = confessions.FindIndex(c => c.Id == id);
-        //        if (index != -1)
-        //        {
-        //            confessions[index] = updatedConfession;
-        //            _service.SaveConfessions(confessions);
-        //        }
-
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(updatedConfession);
-        //}
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Delete(string id)
-        //{
-        //    var userToken = Request.Cookies["DevConfessionToken"];
-        //    if (!_service.IsAuthor(id, userToken))
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    var confessions = _service.GetAllConfessions();
-        //    var confession = confessions.FirstOrDefault(c => c.Id == id);
-
-        //    if (confession != null)
-        //    {
-        //        confessions.Remove(confession);
-        //        _service.SaveConfessions(confessions);
-        //    }
-
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        public IActionResult Share(string id)
+        public async Task<IActionResult> Share(string id)
         {
-            var confession = _service.GetAllConfessions().FirstOrDefault(c => c.Id == id);
+            var confession = await _service.GetConfessionById(id);
             return View(confession);
         }
     }
