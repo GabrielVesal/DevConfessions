@@ -6,18 +6,21 @@ namespace DevConfessions.Services
 {
     public class JsonConfessionService
     {
-        private readonly IWebHostEnvironment _env;
         private readonly string _jsonPath;
 
-        public JsonConfessionService(IWebHostEnvironment env)
+        // Recebe o caminho DIRETO do JSON (configurado no Program.cs)
+        public JsonConfessionService(string jsonPath)
         {
-            _env = env;
-            _jsonPath = Path.Combine(_env.WebRootPath, "data", "confessions.json");
+            _jsonPath = jsonPath;
             InitializeFile();
         }
 
         private void InitializeFile()
         {
+            var directory = Path.GetDirectoryName(_jsonPath);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
             if (!File.Exists(_jsonPath))
                 File.WriteAllText(_jsonPath, "[]");
         }
