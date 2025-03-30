@@ -7,7 +7,7 @@ namespace DevConfessions.Controllers
     public class ConfessionsController : Controller
     {
         private readonly JsonConfessionService _service;
-        private const string UserTokenCookie = "DevConfessionToken";
+        //private const string UserTokenCookie = "DevConfessionToken";
         private const int TopConfessionsCount = 5;
 
         public ConfessionsController(JsonConfessionService service) => _service = service;
