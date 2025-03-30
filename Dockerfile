@@ -2,27 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copia e restaura dependências
-COPY ["DevConfessions.csproj", "."]
-RUN dotnet restore
+# Copia o .csproj primeiro (ajuste o caminho para a subpasta)
+COPY ["DevConfessions/DevConfessions.csproj", "DevConfessions/"]
+RUN dotnet restore "DevConfessions/DevConfessions.csproj"
 
-# Copia todo o código e publica
-COPY . .
-RUN dotnet publish -c Release -o /app/publish
+# Copia o resto dos arquivos
+COPY DevConfessions/ DevConfessions/
+RUN dotnet publish "DevConfessions/" -c Release -o /app/publish
 
-# Estágio final
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Estágio de runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-
-# Cria pasta para dados persistentes
-RUN mkdir -p /app/data && chmod 777 /app/data
-
-# Copia os arquivos publicados
 COPY --from=build /app/publish .
 
 # Configurações essenciais
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-VOLUME /app/data  # Garante persistência
-
 ENTRYPOINT ["dotnet", "DevConfessions.dll"]
