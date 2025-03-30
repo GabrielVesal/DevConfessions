@@ -1,41 +1,55 @@
-﻿using DevConfessions.Models;
-using System.Text.Json;
+using DevConfessions.Models;
+using Firebase.Database;
+using Firebase.Database.Query;
 using System.Text.RegularExpressions;
 
 namespace DevConfessions.Services
 {
     public class JsonConfessionService
     {
-        private readonly string _jsonPath;
+        private readonly FirebaseClient _firebase;
+        private const string ConfessionsPath = "confessions";
 
-        // Recebe o caminho DIRETO do JSON (configurado no Program.cs)
-        public JsonConfessionService(string jsonPath)
+        public JsonConfessionService(FirebaseClient firebase)
         {
-            _jsonPath = jsonPath;
-            InitializeFile();
+            _firebase = firebase;
         }
 
-        private void InitializeFile()
+        public async Task AddConfession(Confession confession)
         {
-            var directory = Path.GetDirectoryName(_jsonPath);
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            if (!File.Exists(_jsonPath))
-                File.WriteAllText(_jsonPath, "[]");
-        }
-
-
-        public void SaveConfessions(List<Confession> confessions) =>
-            File.WriteAllText(_jsonPath, JsonSerializer.Serialize(confessions));
-
-        public void AddConfession(Confession confession)
-        {
-            var confessions = GetAllConfessions();
             confession.Hashtags = ExtractHashtags(confession.Content);
             confession.Content = RemoveHashtags(confession.Content);
-            confessions.Add(confession);
-            SaveConfessions(confessions);
+
+            if (!string.IsNullOrEmpty(confession.Id))
+            {
+                await UpdateConfessionAsync(confession);
+            }
+            else
+            {
+                var result = await _firebase
+                    .Child(ConfessionsPath)
+                    .PostAsync(confession);
+                confession.Id = result.Key;
+            }
+        }
+
+        public async Task IncrementVote(string id)
+        {
+            // Implementação segura e simples que funciona
+            var confession = await GetConfessionById(id);
+            if (confession != null)
+            {
+                confession.Votes++;
+                await UpdateConfessionAsync(confession);
+            }
+        }
+
+        public async Task UpdateConfessionAsync(Confession confession)
+        {
+            await _firebase
+                .Child(ConfessionsPath)
+                .Child(confession.Id)
+                .PutAsync(confession);
         }
 
         public List<string> ExtractHashtags(string content) =>
@@ -44,22 +58,36 @@ namespace DevConfessions.Services
         public string RemoveHashtags(string content) =>
             Regex.Replace(content, @"#\w+", "").Trim();
 
-        public Confession? GetConfessionById(string id)
+        public async Task<Confession?> GetConfessionById(string id)
         {
-            var confessions = GetAllConfessions();
-            return confessions.FirstOrDefault(c => c.Id == id);
+            var confession = await _firebase
+                .Child(ConfessionsPath)
+                .Child(id)
+                .OnceSingleAsync<Confession>();
+
+            if (confession != null)
+            {
+                confession.Id = id;
+            }
+
+            return confession;
         }
 
-        //public bool IsAuthor(string confessionId, string userToken)
-        //{
-        //    var confession = GetConfessionById(confessionId);
-        //    return confession?.AuthorToken == userToken;
-        //}
-
-        public List<Confession> GetAllConfessions()
+        public async Task<List<Confession>> GetAllConfessions()
         {
-            var confessions = JsonSerializer.Deserialize<List<Confession>>(File.ReadAllText(_jsonPath)) ?? new List<Confession>();
-            return confessions.OrderByDescending(c => c.Votes).ToList();
+            var result = await _firebase
+                .Child(ConfessionsPath)
+                .OnceAsync<Confession>();
+
+            return result
+                .Select(x =>
+                {
+                    var confession = x.Object;
+                    confession.Id = x.Key;
+                    return confession;
+                })
+                .OrderByDescending(c => c.Votes)
+                .ToList();
         }
     }
 }
