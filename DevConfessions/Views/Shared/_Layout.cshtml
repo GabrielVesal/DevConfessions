@@ -51,13 +51,17 @@
         <div class="container text-center py-3">
             <span class="text-muted">
                 &copy; @DateTime.Now.Year - DevConfessions - Created By
-                <a href="https://www.linkedin.com/in/gabrielvesal/" class="text-decoration-none"> Gabriel Alves</a>
+                <a href="buymeacoffee.com/gabrielvesal1" class="text-decoration-none"> Gabriel Alves</a>
             </span>
         </div>
     </footer>
 
-    <div class="fab-container">
-        <a asp-controller="Confessions" asp-action="Create" class="fab-button" data-bs-toggle="tooltip" data-bs-placement="left" title="Nova confissão">
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <div style="position: absolute; bottom: 70px; right: 0;">
+            <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gabrielvesal1" data-description="Support me on Buy me a coffee!" data-message="Ei, dev! Se você já riu (ou chorou) com alguma confissão no Dev Confessions, que tal me pagar um café para continuar esse caos organizado?" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+        </div>
+
+        <a asp-controller="Confessions" asp-action="Create" class="fab-button" data-bs-toggle="tooltip" data-bs-placement="left" title="Nova confissão" style="position: absolute; bottom: 80px; right: 0;">
             <i class="bi bi-plus-lg"></i>
         </a>
     </div>
