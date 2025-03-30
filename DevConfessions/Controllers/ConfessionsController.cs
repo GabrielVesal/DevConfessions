@@ -51,7 +51,6 @@ namespace DevConfessions.Controllers
         public IActionResult Create() => View();
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Confession confession)
         {
 
