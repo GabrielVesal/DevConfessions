@@ -1,22 +1,28 @@
+# Estágio de build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY *.csproj .
+
+# Copia e restaura dependências
+COPY ["DevConfessions.csproj", "."]
 RUN dotnet restore
+
+# Copia todo o código e publica
 COPY . .
 RUN dotnet publish -c Release -o /app/publish
 
+# Estágio final
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Cria diretório para dados persistentes
-RUN mkdir -p /app/data && \
-    chmod 777 /app/data  # Garante permissão de escrita
+# Cria pasta para dados persistentes
+RUN mkdir -p /app/data && chmod 777 /app/data
 
+# Copia os arquivos publicados
 COPY --from=build /app/publish .
+
+# Configurações essenciais
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-
-# Define o volume (opcional no Dockerfile, mas documenta a intenção)
-VOLUME /app/data
+VOLUME /app/data  # Garante persistência
 
 ENTRYPOINT ["dotnet", "DevConfessions.dll"]
