@@ -1,0 +1,69 @@
+﻿@model Confession
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">
+                        <i class="bi bi-pencil-square"></i> Nova Confissão
+                    </h2>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div class="mb-3">
+                            <label asp-for="AuthorName" class="form-label">
+                                <i class="bi bi-person"></i> Seu Nome (ou deixe como Anônimo)
+                            </label>
+                            <input asp-for="AuthorName" class="form-control"
+                                   placeholder="Digite seu nome ou deixe como Anônimo" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Content" class="form-label">
+                                <i class="bi bi-chat-left-text"></i> Sua Confissão:
+                            </label>
+                            <textarea asp-for="Content" class="form-control code-input" rows="8"
+                                      placeholder="Ex: 'Confesso que já comitei código sem testar... #Guilty #NoRegrets'"></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                            <div class="form-text">
+                                Use hashtags como #FrontendHell, #SQLGore ou #DebugNightmares
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Votes" value="0" />
+                        <input type="hidden" asp-for="DateCreated" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary me-md-2">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send-check"></i> Postar Confissão
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('Id').value = crypto.randomUUID();
+            document.getElementById('DateCreated').value = new Date().toISOString();
+
+            const authorNameField = document.getElementById('AuthorName');
+            if (!authorNameField.value) {
+                authorNameField.value = 'Anônimo';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,78 @@
+﻿@model List<Confession>
+
+<div class="confessions-container">
+    <div class="header text-center mb-5">
+        <h1 class="dev-title">
+            <i class="bi bi-chat-square-quote"></i> Dev Confessions
+        </h1>
+
+        @if (ViewBag.ShowAll)
+        {
+            <p class="lead">Todas as confissões</p>
+            <a href="@Url.Action("Index")" class="btn btn-primary">
+                <i class="bi bi-trophy"></i> Top 5
+            </a>
+        }
+        else
+        {
+            <p class="lead">Top 5 confissões</p>
+            <a href="@Url.Action("All")" class="btn btn-primary">
+                <i class="bi bi-list-ul"></i> Ver todas
+            </a>
+        }
+    </div>
+
+    <div class="confessions-list">
+        @{
+            int position = 1;
+        }
+        @foreach (var confession in Model)
+        {
+            <div class="confession-card position-relative">
+                @if (!ViewBag.ShowAll && position <= 3)
+                {
+                    <div class="position-ribbon position-@position">
+                        @position° lugar
+                    </div>
+                }
+
+                <div class="confession-content">
+                    <div class="confession-header">
+                        <div class="author-info">
+                            <i class="bi bi-person-circle author-icon"></i>
+                            <span class="author-name">@confession.AuthorName&nbsp;&nbsp;-&nbsp;&nbsp;</span><i class="bi bi-clock"></i> @confession.DateCreated.ToString("dd/MM/yy HH:mm")
+                        </div>
+                    </div>
+
+                    <div class="confession-text mb-3">
+                        @confession.Content
+                    </div>
+
+                    <div class="hashtags mb-3">
+                        @foreach (var tag in confession.Hashtags)
+                        {
+                            <span class="badge hashtag">@tag</span>
+                        }
+                    </div>
+
+                    <div class="confession-footer">
+                        <div class="votes">
+                            <form method="post" action="@Url.Action("Vote")">
+                                <input type="hidden" name="id" value="@confession.Id">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-hand-thumbs-up"></i> @confession.Votes
+                                </button>
+                            </form>
+                        </div>
+                        <a href="@Url.Action("Share", new { id = confession.Id })"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-share"></i> Compartilhar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            position++;
+        }
+    </div>
+</div>
+</div>

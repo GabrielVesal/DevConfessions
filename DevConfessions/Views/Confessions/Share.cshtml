@@ -1,0 +1,387 @@
+﻿@model Confession
+
+@{
+    var confessionUrl = Url.Action("Share", "Confessions", new { id = Model.Id }, "https");
+
+    var tweetText = Uri.EscapeDataString($"Confira esta confissão dev: {Model.Content.Substring(0, Math.Min(Model.Content.Length, 100))} #DevConfessions\n\n🔗 {confessionUrl}");
+
+    var twitterShareUrl = $"https://twitter.com/intent/tweet?text={tweetText}";
+}
+
+<div class="share-container">
+    <div class="tweet-card" id="tweetCard">
+        <div class="tweet-header">
+            <div class="user-info">
+                <img src="https://i.scdn.co/image/ab67616d00001e0244f947429e29c52537dacbdc"
+                     class="user-avatar"
+                     alt="Dev Avatar">
+                <div>
+                    <h3 class="username">Dev Confession</h3>
+                    <span class="user-handle">@@devconfession</span>
+                </div>
+            </div>
+            <i class="bi bi-twitter twitter-icon"></i>
+        </div>
+
+        <div class="tweet-content">
+            <p class="tweet-text">@Model.Content</p>
+
+            <div class="tweet-author">
+                <span class="author-label">Confissão de:</span>
+                <span class="author-name">@@@Model.AuthorName</span>
+            </div>
+
+            <div class="tweet-metadata">
+                <span class="tweet-date">
+                    <i class="bi bi-calendar"></i>
+                    @Model.DateCreated.ToString("dd MMM yyyy HH:mm")
+                </span>
+                <span class="tweet-likes">
+                    <i class="bi bi-heart-fill"></i>
+                    @Model.Votes votos
+                </span>
+            </div>
+
+            <div class="hashtags">
+                @foreach (var tag in Model.Hashtags)
+                {
+                    <span class="hashtag">@tag</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="share-actions">
+        <button onclick="downloadTweet()" class="btn btn-download">
+            <i class="bi bi-download"></i> Baixar Imagem
+        </button>
+        <button onclick="copyLink()" class="btn btn-copy">
+            <i class="bi bi-link-45deg"></i> Copiar Link
+        </button>
+        <a href="@twitterShareUrl" class="btn btn-twitter" target="_blank">
+            <i class="bi bi-twitter"></i> Compartilhar no Twitter
+        </a>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .share-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .tweet-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #e1e8ed;
+        }
+
+        .tweet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid #e1e8ed;
+        }
+
+        .username {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            color: #14171a;
+        }
+
+        .user-handle {
+            font-size: 0.9rem;
+            color: #657786;
+        }
+
+        .twitter-icon {
+            color: #1da1f2;
+            font-size: 1.5rem;
+        }
+
+        .tweet-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: #14171a;
+        }
+
+        .tweet-metadata {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            color: #657786;
+            font-size: 0.9rem;
+        }
+
+            .tweet-metadata i {
+                margin-right: 5px;
+            }
+
+        .hashtags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .hashtag {
+            background-color: #e1f5fe;
+            color: #039be5;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .share-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-download {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .btn-copy {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .btn-twitter {
+            background-color: #1da1f2;
+            color: white;
+        }
+
+            .btn-download:hover, .btn-copy:hover, .btn-twitter:hover {
+                opacity: 0.9;
+                transform: translateY(-2px);
+            }
+
+        @@media (max-width: 576px) {
+            .share-actions {
+                flex-direction: column;
+            }
+
+                .share-actions .btn {
+                    width: 100%;
+                }
+        }
+
+        .tweet-author {
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: #657786;
+        }
+
+        .author-label {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .author-name {
+            color: #1da1f2;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 576px) {
+            .share-container {
+                padding: 0.5rem;
+                margin: 1rem auto;
+            }
+
+            .tweet-card {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                margin-right: 8px;
+            }
+
+            .username {
+                font-size: 1rem;
+            }
+
+            .user-handle {
+                font-size: 0.8rem;
+            }
+
+            .tweet-text {
+                font-size: 1rem;
+                line-height: 1.4;
+                margin-bottom: 1rem;
+            }
+
+            .tweet-metadata {
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .hashtag {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.6rem;
+            }
+
+            .tweet-author {
+                font-size: 0.8rem;
+                margin: 0.5rem 0;
+            }
+
+            .share-actions .btn {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadTweet() {
+            const tweetCard = document.querySelector("#tweetCard");
+            const originalStyles = {
+                boxShadow: tweetCard.style.boxShadow,
+                borderRadius: tweetCard.style.borderRadius,
+                border: tweetCard.style.border
+            };
+
+            tweetCard.style.boxShadow = 'none';
+            tweetCard.style.borderRadius = '12px';
+            tweetCard.style.border = '1px solid #e1e8ed';
+
+            html2canvas(tweetCard, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null, 
+                windowWidth: tweetCard.scrollWidth,
+                windowHeight: tweetCard.scrollHeight,
+                onclone: function(clonedDoc) {
+
+                    const clonedCard = clonedDoc.querySelector("#tweetCard");
+                    clonedCard.style.borderRadius = '12px';
+                    clonedCard.style.overflow = 'hidden';
+                }
+            }).then(canvas => {
+                const roundedCanvas = document.createElement('canvas');
+                roundedCanvas.width = canvas.width;
+                roundedCanvas.height = canvas.height;
+                const ctx = roundedCanvas.getContext('2d');
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.roundRect(0, 0, canvas.width, canvas.height, 24);
+                ctx.fill();
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(0, 0, canvas.width, canvas.height, 24);
+                ctx.clip();
+                ctx.drawImage(canvas, 0, 0);
+                ctx.restore();
+
+                const link = document.createElement('a');
+                link.download = `dev-confession-${new Date().getTime()}.png`;
+                link.href = roundedCanvas.toDataURL('image/png');
+                link.click();
+
+                tweetCard.style.boxShadow = originalStyles.boxShadow;
+                tweetCard.style.borderRadius = originalStyles.borderRadius;
+                tweetCard.style.border = originalStyles.border;
+            }).catch(err => {
+                console.error('Erro ao gerar imagem:', err);
+
+                tweetCard.style.boxShadow = originalStyles.boxShadow;
+                tweetCard.style.borderRadius = originalStyles.borderRadius;
+                tweetCard.style.border = originalStyles.border;
+            });
+        }
+
+                function copyLink() {
+            const confessionUrl = '@Html.Raw(confessionUrl)'; 
+            // console.log("URL a ser copiada:", confessionUrl); 
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(confessionUrl)
+                    .then(() => {
+                        showCopyFeedback();
+                    })
+                    .catch(err => {
+                        console.error('Erro ao copiar (clipboard API):', err);
+                        useFallbackCopyMethod(confessionUrl);
+                    });
+            } else {
+                useFallbackCopyMethod(confessionUrl);
+            }
+        }
+
+        function useFallbackCopyMethod(url) {
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            textArea.style.position = 'fixed'; 
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopyFeedback();
+                } else {
+                    alert('Não foi possível copiar o link. Tente manualmente: ' + url);
+                }
+            } catch (e) {
+                alert('Erro ao copiar: ' + e + '\nLink: ' + url);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        function showCopyFeedback() {
+            const copyButton = document.querySelector('.btn-copy');
+            const originalHtml = copyButton.innerHTML;
+            const originalClass = copyButton.className;
+
+            copyButton.innerHTML = '<i class="bi bi-check-circle-fill"></i> Copiado!';
+            copyButton.className = originalClass.replace('btn-copy', 'btn-success');
+
+            setTimeout(() => {
+                copyButton.innerHTML = originalHtml;
+                copyButton.className = originalClass;
+            }, 2000);
+        }
+
+    </script>
+}
