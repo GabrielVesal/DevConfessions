@@ -46,21 +46,25 @@ namespace DevConfessions.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Confession confession)
         {
-            if (ModelState.IsValid)
-            {
-                if (string.IsNullOrWhiteSpace(confession.AuthorName))
-                {
-                    confession.AuthorName = "Anônimo";
-                }
+           if (ModelState.IsValid)
+           {
+               if (confession.Content.Trim().Length >= 5) 
+               {
+                   if (string.IsNullOrWhiteSpace(confession.AuthorName))
+                   {
+                       confession.AuthorName = "Anônimo";
+                   }
 
-                confession.Id = null;
-                confession.Votes = 0;
-                confession.DateCreated = DateTime.Now;
+                   confession.Id = null;
+                   confession.Votes = 0;
+                   confession.DateCreated = DateTime.Now;
 
-                await _service.AddConfession(confession);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(confession);
+                   await _service.AddConfession(confession);
+               }
+
+               return RedirectToAction(nameof(Index));
+           }
+           return View(confession);
         }
 
         public async Task<IActionResult> Share(string id)
