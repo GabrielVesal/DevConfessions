@@ -55,7 +55,6 @@ namespace DevConfessions.Controllers
                        confession.AuthorName = "Anônimo";
                    }
 
-                   confession.Id = null;
                    confession.Votes = 0;
                    confession.DateCreated = DateTime.Now;
 
