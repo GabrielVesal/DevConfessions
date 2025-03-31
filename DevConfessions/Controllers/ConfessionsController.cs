@@ -37,7 +37,21 @@ namespace DevConfessions.Controllers
         [HttpPost]
         public async Task<IActionResult> Vote(string id)
         {
+            var cookieKey = $"voted_{id}";
+            if (Request.Cookies[cookieKey] != null)
+            {
+                TempData["VoteError"] = "Você já votou nesta confissão!";
+                return RedirectToAction("Index");
+            }
+
             await _service.IncrementVote(id);
+
+            Response.Cookies.Append(cookieKey, "true", new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(1)
+            });
+
+            TempData["VoteSuccess"] = "Voto registrado!";
             return RedirectToAction("Index");
         }
 
