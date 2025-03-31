@@ -90,9 +90,9 @@
         }
     </div>
     <script>
-        document.querySelectorAll('.vote-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const button = this.querySelector('.vote-button');
+        document.querySelectorAll('form[action="@Url.Action("Vote")"]').forEach(form => {
+            form.addEventListener('submit', function() {
+                const button = this.querySelector('button');
                 button.disabled = true;
                 button.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> Obrigado!`;
             });
