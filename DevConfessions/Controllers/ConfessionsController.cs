@@ -70,8 +70,8 @@ namespace DevConfessions.Controllers
                    }
 
                    confession.Votes = 0;
-                   confession.DateCreated = DateTime.Now;
-
+                   confession.DateCreated = DateTime.UtcNow.AddHours(-3);
+                   
                    await _service.AddConfession(confession);
                }
 
