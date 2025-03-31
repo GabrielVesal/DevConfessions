@@ -1,6 +1,21 @@
 ﻿@model List<Confession>
 
 <div class="confessions-container">
+     @if (TempData["VoteError"] != null)
+     {
+         <div class="alert alert-warning alert-dismissible fade show" role="alert">
+             @TempData["VoteError"]
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+     }
+    
+     @if (TempData["VoteSuccess"] != null)
+     {
+         <div class="alert alert-success alert-dismissible fade show" role="alert">
+             @TempData["VoteSuccess"]
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+         </div>
+     }
     <div class="header text-center mb-5">
         <h1 class="dev-title">
             <i class="bi bi-chat-square-quote"></i> Dev Confessions
@@ -74,4 +89,18 @@
             position++;
         }
     </div>
+    <script>
+        document.querySelectorAll('.vote-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const button = this.querySelector('.vote-button');
+                button.disabled = true;
+                button.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> Obrigado!`;
+            });
+        });
+                setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.remove();
+            });
+        }, 3000);
+    </script>
 </div>
