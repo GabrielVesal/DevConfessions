@@ -35,6 +35,7 @@ namespace DevConfessions.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Vote(string id)
         {
             var cookieKey = $"voted_{id}";
