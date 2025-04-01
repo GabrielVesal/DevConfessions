@@ -12,6 +12,7 @@
 
                 <div class="card-body">
                     <form asp-action="Create">
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label asp-for="AuthorName" class="form-label">
                                 <i class="bi bi-person"></i> Seu Nome (ou deixe como Anônimo)
