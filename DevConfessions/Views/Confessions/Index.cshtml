@@ -73,6 +73,7 @@
                     <div class="confession-footer">
                         <div class="votes">
                             <form method="post" action="@Url.Action("Vote")">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@confession.Id">
                                 <button type="submit" class="btn btn-sm btn-success">
                                     <i class="bi bi-hand-thumbs-up"></i> @confession.Votes
