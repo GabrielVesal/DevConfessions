@@ -58,6 +58,7 @@ namespace DevConfessions.Controllers
         public IActionResult Create() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Confession confession)
         {
            if (ModelState.IsValid)
