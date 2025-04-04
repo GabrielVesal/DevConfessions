@@ -27,7 +27,7 @@ namespace DevConfessions.Controllers
         {
             var allConfessions = await _service.GetAllConfessions();
             var orderedConfessions = allConfessions
-                .OrderByDescending(c => c.Votes)
+                .OrderByDescending(c => c.DateCreated)
                 .ToList();
 
             ViewBag.ShowAll = true;
