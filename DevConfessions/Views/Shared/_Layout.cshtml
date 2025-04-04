@@ -48,20 +48,37 @@
         <div class="container text-center py-3">
             <span class="text-muted">
                 &copy; @DateTime.Now.Year - DevConfessions - Created By
-                <a href="https://buymeacoffee.com/gabrielvesal1" target="_blank" class="text-decoration-none"> Gabriel Alves</a>
+                <a href="https://www.linkedin.com/in/gabrielvesal/" target="_blank" class="text-decoration-none"> Gabriel Alves</a>
             </span>
         </div>
     </footer>
 
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        <div style="position: absolute; bottom: 70px; right: 0;">
-            <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="gabrielvesal1" data-description="Support me on Buy me a coffee!" data-message="Ei, dev! Se você já riu (ou chorou) com alguma confissão no Dev Confessions, que tal me pagar um café para continuar esse caos organizado?" data-color="#5F7FFF" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
-        </div>
-
-        <a asp-controller="Confessions" asp-action="Create" class="fab-button" data-bs-toggle="tooltip" data-bs-placement="left" title="Nova confissão" style="position: absolute; bottom: 80px; right: 0;">
-            <i class="bi bi-plus-lg"></i>
+    <div style="position: absolute; bottom: 20px; right: 0;">
+        <a href="https://livepix.gg/gabrielvesal" target="_blank"
+           style="display: inline-block;
+              background: #5F7FFF;
+              color: white;
+              padding: 12px;
+              border-radius: 50%;
+              text-decoration: none;
+              box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+              transition: all 0.3s ease;
+              transform: scale(1);
+              animation: pulse 2s infinite;"
+           onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.3)';"
+           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)';">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M4 4a.5.5 0 0 1 .5.5V6h6v-.5a.5.5 0 0 1 1 0V6h1.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5H4V4.5a.5.5 0 0 1 .5-.5z" />
+                <path d="M8 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+            </svg>
         </a>
     </div>
+
+    <a asp-controller="Confessions" asp-action="Create" class="fab-button" data-bs-toggle="tooltip" data-bs-placement="left" title="Nova confissão" style="position: absolute; bottom: 80px; right: 0;">
+        <i class="bi bi-plus-lg"></i>
+    </a>
+</div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
