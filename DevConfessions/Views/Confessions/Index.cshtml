@@ -71,15 +71,15 @@
                     </div>
 
                     <div class="confession-footer">
-                        <div class="votes">
-                            <form method="post" action="@Url.Action("Vote")">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@confession.Id">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    <i class="bi bi-hand-thumbs-up"></i> @confession.Votes
-                                </button>
-                            </form>
-                        </div>
+                         <div class="votes" id="votes-@confession.Id">
+                             <form method="post" action="@Url.Action("Vote")" class="vote-form" data-id="@confession.Id">
+                                 <input type="hidden" name="id" value="@confession.Id">
+                                 @Html.AntiForgeryToken()
+                                 <button type="submit" class="btn btn-sm btn-success">
+                                     <i class="bi bi-hand-thumbs-up"></i> <span class="vote-count">@confession.Votes</span>
+                                 </button>
+                             </form>
+                         </div>
                         <a href="@Url.Action("Share", new { id = confession.Id })"
                            class="btn btn-sm btn-outline-secondary">
                             <i class="bi bi-share"></i> Compartilhar
@@ -103,5 +103,77 @@
                 alert.remove();
             });
         }, 3000);
+        document.querySelectorAll('.vote-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const confessionId = this.getAttribute('data-id');
+        const button = this.querySelector('button');
+        const voteCountElement = this.querySelector('.vote-count');
+        
+        button.disabled = true;
+        button.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> Obrigado!`;
+        
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': this.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: `id=${confessionId}`
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            if (data.success) {
+                voteCountElement.textContent = data.newVoteCount;
+                
+                // Mostrar mensagem de sucesso
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `
+                    Voto registrado!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                const container = document.querySelector('.confessions-container');
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+            } else {
+                // Mostrar mensagem de erro
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                const container = document.querySelector('.confessions-container');
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+                
+                button.disabled = false;
+                button.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${voteCountElement.textContent}`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            button.disabled = false;
+            button.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${voteCountElement.textContent}`;
+        });
+    });
+});
     </script>
 </div>
