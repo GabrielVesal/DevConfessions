@@ -33,15 +33,16 @@ namespace DevConfessions.Services
             }
         }
 
-        public async Task IncrementVote(string id)
+        public async Task<int> IncrementVote(string id)
         {
-            // Implementação segura e simples que funciona
             var confession = await GetConfessionById(id);
             if (confession != null)
             {
                 confession.Votes++;
                 await UpdateConfessionAsync(confession);
+                return confession.Votes; // Retorna o novo valor de votos
             }
+            throw new Exception("Confissão não encontrada"); // Ou retorne 0 se preferir
         }
 
         public async Task UpdateConfessionAsync(Confession confession)
