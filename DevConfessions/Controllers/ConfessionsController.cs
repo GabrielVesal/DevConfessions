@@ -34,27 +34,31 @@ namespace DevConfessions.Controllers
             return View("Index", orderedConfessions);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Vote(string id)
-        {
-            var cookieKey = $"voted_{id}";
-            if (Request.Cookies[cookieKey] != null)
-            {
-                TempData["VoteError"] = "Você já votou nesta confissão!";
-                return RedirectToAction("Index");
-            }
+       [HttpPost]
+       [ValidateAntiForgeryToken]
+       public async Task<IActionResult> Vote(string id)
+       {
+           var cookieKey = $"voted_{id}";
+           if (Request.Cookies[cookieKey] != null)
+           {
+               return Json(new { success = false, message = "Você já votou nesta confissão!" });
+           }
 
-            await _service.IncrementVote(id);
+           try
+           {
+               var newVoteCount = await _service.IncrementVote(id);
+               Response.Cookies.Append(cookieKey, "true", new CookieOptions
+               {
+                   Expires = DateTime.Now.AddDays(1)
+               });
 
-            Response.Cookies.Append(cookieKey, "true", new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(1)
-            });
-
-            TempData["VoteSuccess"] = "Voto registrado!";
-            return RedirectToAction("Index");
-        }
+               return Json(new { success = true, newVoteCount });
+           }
+           catch (Exception ex)
+           {
+               return Json(new { success = false, message = ex.Message });
+           }
+       }
 
         public IActionResult Create() => View();
 
