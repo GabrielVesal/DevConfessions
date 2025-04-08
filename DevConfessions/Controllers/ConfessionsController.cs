@@ -66,25 +66,48 @@ namespace DevConfessions.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Confession confession)
         {
-           if (ModelState.IsValid)
-           {
-               if (confession.Content.Trim().Length >= 5) 
-               {
-                   if (string.IsNullOrWhiteSpace(confession.AuthorName))
-                   {
-                       confession.AuthorName = "Anônimo";
-                   }
+            // Checar o cookie de tempo
+            var lastConfessionTimeStr = Request.Cookies["LastConfessionTime"];
+            if (lastConfessionTimeStr != null &&
+                DateTime.TryParse(lastConfessionTimeStr, out var lastConfessionTime))
+            {
+                if (DateTime.Now < lastConfessionTime.AddMinutes(30)) // corrigido para 10 min
+                {
+                    // Já fez uma confissão recentemente
+                    TempData["ConfessionError"] = "Chega de confissão por hoje, já traumatizou o sistema! 💻🔥";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
-                   confession.Votes = 0;
-                   confession.DateCreated = DateTime.UtcNow.AddHours(-3);
-                   
-                   await _service.AddConfession(confession);
-               }
+            if (ModelState.IsValid)
+            {
+                if (confession.Content.Trim().Length >= 5)
+                {
+                    if (string.IsNullOrWhiteSpace(confession.AuthorName))
+                    {
+                        confession.AuthorName = "Anônimo";
+                    }
 
-               return RedirectToAction(nameof(Index));
-           }
-           return View(confession);
+                    confession.Votes = 0;
+                    confession.DateCreated = DateTime.Now;
+
+                    await _service.AddConfession(confession);
+
+                    // Definir novo cookie com a hora atual
+                    Response.Cookies.Append("LastConfessionTime", DateTime.Now.ToString(),
+                        new CookieOptions
+                        {
+                            Expires = DateTimeOffset.Now.AddMinutes(10),
+                            HttpOnly = true
+                        });
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(confession);
         }
+
 
         public async Task<IActionResult> Share(string id)
         {
