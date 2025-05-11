@@ -6,10 +6,10 @@ namespace DevConfessions.Controllers
 {
     public class ConfessionsController : Controller
     {
-        private readonly JsonConfessionService _service;
+        private readonly DataConfessionService _service;
         private const int TopConfessionsCount = 5;
 
-        public ConfessionsController(JsonConfessionService service) => _service = service;
+        public ConfessionsController(DataConfessionService service) => _service = service;
 
         public async Task<IActionResult> Index()
         {
