@@ -5,12 +5,12 @@ using System.Text.RegularExpressions;
 
 namespace DevConfessions.Services
 {
-    public class JsonConfessionService
+    public class DataConfessionService
     {
         private readonly FirebaseClient _firebase;
         private const string ConfessionsPath = "confessions";
 
-        public JsonConfessionService(FirebaseClient firebase)
+        public DataConfessionService(FirebaseClient firebase)
         {
             _firebase = firebase;
         }
