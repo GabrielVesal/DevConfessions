@@ -23,8 +23,8 @@ builder.Services.AddSingleton<FirebaseClient>(_ =>
             AuthTokenAsyncFactory = () => Task.FromResult(firebaseSecret)
         }));
 
-// 3. Registro do serviço (mantemos o mesmo nome, mas agora usando Firebase)
-builder.Services.AddSingleton<JsonConfessionService>();
+// 3. Registro do serviço 
+builder.Services.AddSingleton<DataConfessionService>();
 
 var app = builder.Build();
 
